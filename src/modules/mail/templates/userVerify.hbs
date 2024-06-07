@@ -1,0 +1,36 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Verify Your Email</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; } .email-container {
+      max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border: 1px solid #dddddd; }
+      .email-header { text-align: center; padding: 10px 0; } .email-header img { width: 100px; } .email-body { padding:
+      20px; text-align: center; } .email-body h1 { color: #333333; } .email-body p { color: #666666; } .verify-button {
+      display: inline-block; margin-top: 20px; padding: 10px 20px; color: #ffffff; background-color: #007bff;
+      text-decoration: none; border-radius: 5px; } .email-footer { text-align: center; padding: 10px; color: #999999;
+      font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class='email-container'>
+      <div class='email-header'>
+        <img
+          src='https://github.com/thaiphake46/lms-be-nestjs/blob/master/public/companyLogo/logo.jpg?raw=true'
+          alt='LMS Platform Company Logo'
+        />
+      </div>
+      <div class='email-body'>
+        <h1>Chào mừng {{name}} đến với LMS Platform</h1>
+        <p>Cảm ơn bạn đã đăng ký. Vui lòng xác minh địa chỉ email của bạn bằng cách nhấp vào nút bên dưới.</p>
+        <a href='{{verifyLink}}' class='verify-button'>Verify Email</a>
+        <p>Nếu bạn chưa đăng ký tài khoản này, bạn có thể bỏ qua email này.</p>
+      </div>
+      <div class='email-footer'>
+        &copy; 2024 LMS Platform. All rights reserved.<br />
+        123 Ha Dong, Ha Noi, Vietnam
+      </div>
+    </div>
+  </body>
+</html>
