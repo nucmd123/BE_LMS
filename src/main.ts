@@ -61,7 +61,7 @@ async function bootstrap() {
     .addSecurityRequirements('authorization')
     .build()
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('document-api', app, document, { swaggerOptions: { persistAuthorization: true } })
+  SwaggerModule.setup('api-docs', app, document, { swaggerOptions: { persistAuthorization: true } })
 
   // app listen
   await app.listen(PORT, () => {

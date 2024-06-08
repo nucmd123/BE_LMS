@@ -1,4 +1,9 @@
-import { PickType } from '@nestjs/mapped-types'
-import { CreateRoleDto } from './create-role.dto'
+import { IsOptional, IsString } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
-export class UpdateRoleDto extends PickType(CreateRoleDto, ['description' as const]) {}
+export class UpdateRoleDto  {
+    @IsOptional()
+    @IsString()
+    @ApiProperty()
+    description?: string
+}
