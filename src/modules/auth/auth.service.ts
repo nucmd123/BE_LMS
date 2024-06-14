@@ -77,12 +77,13 @@ export class AuthService {
     const tokenPair = this.signTokenPair(user)
     await this.keyTokenService.saveKeyToken(tokenPair.refreshToken, user) // save keyToken into db
 
-    const sendVerify = await this.mailService.userVerify(user.email, {
-      context: {
-        verifyLink: `${req.protocol}://${req.headers.host}`,
-        name: `${user.firstName} ${user.lastName}`,
-      },
-    })
+    // send mail verify
+    // const sendVerify = await this.mailService.userVerify(user.email, {
+    //   context: {
+    //     verifyLink: `${req.protocol}://${req.headers.host}`,
+    //     name: `${user.firstName} ${user.lastName}`,
+    //   },
+    // })
 
     return {
       user,
