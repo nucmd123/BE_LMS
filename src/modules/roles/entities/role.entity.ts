@@ -7,7 +7,7 @@ export class Role {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ type: 'enum', enum: RoleEnum, unique: true })
+  @Column({ unique: true })
   name: RoleEnum.ROOT | RoleEnum.ADMIN | RoleEnum.TEACHER | RoleEnum.STUDENT
 
   @Column({ type: 'text' })

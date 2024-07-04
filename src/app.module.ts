@@ -8,7 +8,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { RolesModule } from './modules/roles/roles.module'
 import { DatabaseModule } from './modules/database/database.module'
 import { MailModule } from './modules/mail/mail.module'
-import { CourseModule } from './modules/course/course.module';
+import { CourseModule } from './modules/courses/course.module'
 
 @Module({
   controllers: [AppController],
