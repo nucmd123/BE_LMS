@@ -7,7 +7,8 @@ import { UsersModule } from './modules/users/users.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { RolesModule } from './modules/roles/roles.module'
 import { DatabaseModule } from './modules/database/database.module'
-import { MailModule } from './modules/mail/mail.module';
+import { MailModule } from './modules/mail/mail.module'
+import { CourseModule } from './modules/course/course.module';
 
 @Module({
   controllers: [AppController],
@@ -21,6 +22,7 @@ import { MailModule } from './modules/mail/mail.module';
     AuthModule,
     RolesModule,
     MailModule,
+    CourseModule,
   ],
 })
 export class AppModule {
