@@ -6,10 +6,12 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { SocialEnum } from '../enums/SocialEnum'
+import { Course } from 'src/modules/courses/entities/course.entity'
 
 @Entity()
 export class User {
@@ -41,9 +43,6 @@ export class User {
   @Column({ nullable: true })
   socialId: string
 
-  @ManyToOne(() => Role, (role) => role.users)
-  role: Role
-
   @CreateDateColumn()
   createdAt: Date
 
@@ -52,6 +51,13 @@ export class User {
 
   @DeleteDateColumn()
   deletedAt: Date
+
+  /* Relationship */
+  @ManyToOne(() => Role, (role) => role.users)
+  role: Role
+
+  @OneToMany(() => Course, (course) => course.teacher)
+  courses: Course[]
 
   toJSON() {
     return instanceToPlain(this)
