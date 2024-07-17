@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateCourseDto } from './dto/create-course.dto'
 import { UpdateCourseDto } from './dto/update-course.dto'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -6,49 +6,107 @@ import { Course } from './entities/course.entity'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import PaginationQueryDto from './dto/pagination-query.dto'
+import { existsSync, unlinkSync } from 'fs'
+import { COURSE_IMG_DIR } from './course-image.interceptor'
 
 type ICreateCourse = { createCourseDto: CreateCourseDto; user: User }
-type IFindAllCourse = { query: PaginationQueryDto }
+type IFindCourse = { query: PaginationQueryDto }
+type IFindCourseByTeacher = { user: User; query: PaginationQueryDto }
+type IFindOneCourse = { id: number }
+type IUpdateCourse = { id: number; updateCourseDto: UpdateCourseDto; user: User }
+type IDeleteCourse = { id: number; user: User }
 
 @Injectable()
 export class CourseService {
   constructor(@InjectRepository(Course) private courseRepository: Repository<Course>) {}
 
   async create({ createCourseDto, user }: ICreateCourse): Promise<Course> {
-    const _course = this.courseRepository.create({ ...createCourseDto, teacherId: user.id, teacher: user })
-    return await this.courseRepository.save(_course)
+    const course = this.courseRepository.create({ ...createCourseDto, teacherId: user.id, teacher: user })
+    return await this.courseRepository.save(course)
   }
 
-  async findAll({ query }: IFindAllCourse) {
+  async find({ query }: IFindCourse) {
     const page = query.page || 1 // số trang
     const limit = query.limit || 10 // số item 1 trang
 
-    // return `This action returns all course`
     const [courses, total] = await this.courseRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
     })
     return {
       meta: {
+        page, // trang hiện tại
+        limit, // Số lượng bản ghi trên mỗi trang
         totalItems: total, // Tổng số bản ghi trong cơ sở dữ liệu
         itemCount: courses.length, // Số lượng bản ghi trong trang hiện tại
-        itemsPerPage: limit, // Số lượng bản ghi trên mỗi trang
         totalPages: Math.ceil(total / limit), // tổng số trang
-        currentPage: page, // trang hiện tại
       },
       courses,
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`
+  async findCourseByTeacher({ user, query }: IFindCourseByTeacher) {
+    const page = query.page || 1 // số trang
+    const limit = query.limit || 10 // số item 1 trang
+
+    const [courses, total] = await this.courseRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      where: { teacherId: user.id },
+    })
+    return {
+      meta: {
+        page, // trang hiện tại
+        limit, // Số lượng bản ghi trên mỗi trang
+        totalItems: total, // Tổng số bản ghi trong cơ sở dữ liệu
+        itemCount: courses.length, // Số lượng bản ghi trong trang hiện tại
+        totalPages: Math.ceil(total / limit), // tổng số trang
+      },
+      courses,
+    }
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`
+  async findOne({ id }: IFindOneCourse) {
+    const _course = await this.courseRepository.findOne({
+      where: { id },
+      relations: { teacher: true },
+    })
+
+    const { teacher, ...course } = _course
+    return {
+      course,
+      teacher: {
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+      },
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`
+  async update({ id, updateCourseDto, user }: IUpdateCourse) {
+    const course = await this.courseRepository.findOne({ where: { id } })
+    if (!course) throw new NotFoundException('Khoá học không tồn tại')
+
+    // kiểm tra xem giáo viên có sở hữu khoá học không
+    if (user.id !== course.teacherId) throw new ForbiddenException('Bạn không có quyền truy cập khoá học này')
+
+    // Xoá image cũ trong server trước khi update thông tin mới cho course
+    if (course.image) {
+      const oldCourseImage = `${COURSE_IMG_DIR}/${course.image}`
+      if (existsSync(oldCourseImage)) {
+        unlinkSync(oldCourseImage)
+      }
+    }
+
+    Object.assign(course, { ...updateCourseDto, image: updateCourseDto.image ?? course.image })
+    return await this.courseRepository.save(course)
+  }
+
+  async delete({ id, user }: IDeleteCourse) {
+    const course = await this.courseRepository.findOne({ where: { id } })
+
+    if (!course) throw new NotFoundException('Khoá học không tồn tại')
+
+    if (user.id === course.teacherId) return await this.courseRepository.softRemove(course)
+    throw new ForbiddenException('Bạn không có quyền truy cập khoá học này')
   }
 }
