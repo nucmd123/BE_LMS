@@ -45,7 +45,7 @@ export class CourseService {
     }
   }
 
-  async findCourseByTeacher({ user, query }: IFindCourseByTeacher) {
+  async findCoursesByTeacher({ user, query }: IFindCourseByTeacher) {
     const page = query.page || 1 // số trang
     const limit = query.limit || 10 // số item 1 trang
 

@@ -50,7 +50,7 @@ export class CourseController {
 
   @Get('find-course-by-teacher')
   async findCourseByTeacher(@Query() query: PaginationQueryDto, @ReqUser() user: User) {
-    return await this.courseService.findCourseByTeacher({ user, query })
+    return await this.courseService.findCoursesByTeacher({ user, query })
   }
 
   @Patch('update/:id')
