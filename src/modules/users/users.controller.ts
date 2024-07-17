@@ -17,8 +17,7 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator'
 import { ReqUser } from 'src/decorators/user.decorator'
 import { User } from './entities/user.entity'
 import { existsSync, unlinkSync } from 'fs'
-import { AVATAR_DIR } from 'src/constants'
-import AvatarInterceptor from './avatar-upload.interceptor'
+import AvatarInterceptor, { AVATAR_IMG_DIR } from './avatar-upload.interceptor'
 import { ApiTags } from '@nestjs/swagger'
 
 @ApiTags('users')
@@ -50,7 +49,7 @@ export class UsersController {
     }
 
     if (user.avatar) {
-      const odlAvatarPath = `${AVATAR_DIR}/${user.avatar}`
+      const odlAvatarPath = `${AVATAR_IMG_DIR}/${user.avatar}`
 
       if (existsSync(odlAvatarPath)) {
         unlinkSync(odlAvatarPath)

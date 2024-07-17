@@ -4,24 +4,12 @@ import { randomUUID } from 'crypto'
 import { diskStorage } from 'multer'
 import { extname, join } from 'path'
 
-/*
-  image/png
-  image/jpeg
-  image/webp
-  image/apng
-  image/avif
-  image/bmp
-  image/gif
-  image/vnd.microsoft.icon
-  image/svg+xml
-  image/tiff
-*/
+export const COURSE_IMG_DIR = join(process.cwd(), 'public/courses')
 
-export const AVATAR_IMG_DIR = join(process.cwd(), 'public/avatar')
 const FILE_SIZE_LIMIT = 1000000 /* bytes, fileSize: 1 MB */
 const allowMimeTypes = ['image/jpeg', 'image/png']
 
-export default function AvatarInterceptor(field: string) {
+export default function CourseImageInterceptor(field: string) {
   return FileInterceptor(field, {
     fileFilter: async (req, file, cb) => {
       if (allowMimeTypes.includes(file.mimetype)) return cb(null, true)
@@ -32,7 +20,7 @@ export default function AvatarInterceptor(field: string) {
     },
     storage: diskStorage({
       destination: (req, file, cb) => {
-        cb(null, AVATAR_IMG_DIR)
+        cb(null, COURSE_IMG_DIR)
       },
       filename: (req, file, cb) => {
         const filename = `${file.fieldname}-${randomUUID()}${extname(file.originalname)}`
