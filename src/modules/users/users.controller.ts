@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Query,
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -19,6 +20,7 @@ import { User } from './entities/user.entity'
 import { existsSync, unlinkSync } from 'fs'
 import AvatarInterceptor, { AVATAR_IMG_DIR } from './avatar-upload.interceptor'
 import { ApiTags } from '@nestjs/swagger'
+import PaginationQueryDto from '../courses/dto/pagination-query.dto'
 
 @ApiTags('users')
 @Controller('users')
@@ -28,8 +30,8 @@ export class UsersController {
   // [get] find all user /api/v1/users
   @Get()
   @ResponseMessage('Find all user ok')
-  async findAll() {
-    return { users: await this.usersService.findAll() }
+  async find(@Query() query: PaginationQueryDto) {
+    return await this.usersService.find({ query })
   }
 
   // [get] get profile /api/v1/users/profile
@@ -40,14 +42,15 @@ export class UsersController {
   }
 
   // [get] post-avatar /api/v1/users/profile/post-avatar
-  @Post('profile/post-avatar')
+  @Patch('profile/change-avatar')
   @UseInterceptors(AvatarInterceptor('avatar'))
-  @ResponseMessage('Post avatar ok')
+  @ResponseMessage('Cập nhật hình đại diện thành công')
   async postAvatar(@ReqUser() user: User, @UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('No avatar file provided')
+      throw new BadRequestException('Không có hình ảnh được cung cấp')
     }
 
+    // Xoá avatar cũ trong server
     if (user.avatar) {
       const odlAvatarPath = `${AVATAR_IMG_DIR}/${user.avatar}`
 
@@ -56,23 +59,29 @@ export class UsersController {
       }
     }
 
-    const userUpdate = await this.usersService.updateById(user.id, { avatar: file.filename })
+    // update
+    const userUpdate = await this.usersService.updateById({
+      id: user.id,
+      updateUserDto: { avatar: file.filename },
+    })
+    // const userUpdate = await this.usersService.updateById(user.id, { avatar: file.filename })
 
     return { user: userUpdate }
   }
 
-  @Get(':id')
-  findOneById(@Param('id', ParseIdPipe) id: number) {
-    return this.usersService.findOneById(id)
+  @Delete('profile/remove')
+  @ResponseMessage('Người dùng đã được xoá')
+  async removeProfile(@ReqUser() user: User) {
+    return await this.usersService.removeUser({ user })
   }
 
-  @Patch(':id')
-  async update(@Param('id', ParseIdPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await this.usersService.updateById(+id, updateUserDto)
-  }
-
-  @Delete(':id')
-  remove(@Param('id', ParseIdPipe) id: string) {
-    return this.usersService.softRemoveById(+id)
+  @Patch('profile/update')
+  @ResponseMessage('Cập nhật thành công')
+  async update(@ReqUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+    delete updateUserDto['avatar']
+    return await this.usersService.updateById({
+      id: user.id,
+      updateUserDto,
+    })
   }
 }

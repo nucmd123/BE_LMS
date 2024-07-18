@@ -9,6 +9,7 @@ import PaginationQueryDto from './dto/pagination-query.dto'
 import { existsSync, unlinkSync } from 'fs'
 import { COURSE_IMG_DIR } from './course-image.interceptor'
 import { Enrollment } from './entities/enrollment.entity'
+import paginationMeta from 'src/utils/paginationMeta'
 
 type ICreateCourse = { createCourseDto: CreateCourseDto; user: User }
 type IFindCourse = { query: PaginationQueryDto }
@@ -40,14 +41,9 @@ export class CourseService {
       skip: (page - 1) * limit,
       take: limit,
     })
+
     return {
-      meta: {
-        page, // trang hiện tại
-        limit, // Số lượng bản ghi trên mỗi trang
-        totalItems: total, // Tổng số bản ghi trong cơ sở dữ liệu
-        itemCount: courses.length, // Số lượng bản ghi trong trang hiện tại
-        totalPages: Math.ceil(total / limit), // tổng số trang
-      },
+      meta: paginationMeta({ limit, page, total }),
       courses,
     }
   }
@@ -62,13 +58,7 @@ export class CourseService {
       where: { teacherId: user.id },
     })
     return {
-      meta: {
-        page, // trang hiện tại
-        limit, // Số lượng bản ghi trên mỗi trang
-        totalItems: total, // Tổng số bản ghi trong cơ sở dữ liệu
-        itemCount: courses.length, // Số lượng bản ghi trong trang hiện tại
-        totalPages: Math.ceil(total / limit), // tổng số trang
-      },
+      meta: paginationMeta({ limit, page, total }),
       courses,
     }
   }

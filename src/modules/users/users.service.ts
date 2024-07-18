@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -7,6 +7,12 @@ import { Repository } from 'typeorm'
 import { hash } from 'src/utils/hashAndCompare'
 import { RolesService } from '../roles/roles.service'
 import { RoleEnum } from 'src/modules/roles/enums/RoleEnum'
+import PaginationQueryDto from '../courses/dto/pagination-query.dto'
+import paginationMeta from 'src/utils/paginationMeta'
+
+type IFindUsers = { query: PaginationQueryDto }
+type IRemoveUser = { user: User }
+type IUpdateById = { id: number; updateUserDto?: UpdateUserDto }
 
 @Injectable()
 export class UsersService {
@@ -33,9 +39,21 @@ export class UsersService {
     )
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.usersRepository.find()
-    return users
+  async find({ query }: IFindUsers) {
+    const page = query.page || 1 // số trang
+    const limit = query.limit || 10 // số item 1 trang
+    // const users = await this.usersRepository.find()
+    // return users
+
+    const [users, total] = await this.usersRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    })
+
+    return {
+      meta: paginationMeta({ limit, page, total }),
+      users,
+    }
   }
 
   async findOneByEmail(email: string) {
@@ -46,14 +64,12 @@ export class UsersService {
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id }, relations: { role: true } })
     if (!user) {
-      throw new BadRequestException('User can not found')
+      throw new NotFoundException('User can not found')
     }
     return user
-    // return await this.usersRepository.findOne({ where: { id } })
   }
 
-  async updateById(id: number, updateUserDto: UpdateUserDto) {
-    // const user = await this.usersRepository.findOneBy({ id })
+  async updateById({ id, updateUserDto }: IUpdateById) {
     const user = await this.findOneById(id)
 
     if (!user) {
@@ -66,13 +82,8 @@ export class UsersService {
     return await this.usersRepository.save(user)
   }
 
-  async softRemoveById(id: number) {
-    const user = await this.usersRepository.findOneBy({ id })
-
-    if (!user) {
-      throw new BadRequestException('User can not found')
-    }
-
-    return this.usersRepository.softRemove(user)
+  async removeUser({ user }: IRemoveUser) {
+    await this.usersRepository.softRemove(user)
+    return
   }
 }
