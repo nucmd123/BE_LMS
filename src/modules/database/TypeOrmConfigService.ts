@@ -5,6 +5,7 @@ import { User } from '../users/entities/user.entity'
 import { Role } from '../roles/entities/role.entity'
 import { KeyToken } from '../auth/entities/key-token.entity'
 import { Course } from '../courses/entities/course.entity'
+import { Enrollment } from '../courses/entities/enrollment.entity'
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -18,7 +19,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get('DB_USERNAME'),
       password: this.configService.get('DB_PASSWORD'),
       database: this.configService.get('DB_NAME'),
-      entities: [User, Role, KeyToken, Course],
+      entities: [User, Role, KeyToken, Course, Enrollment],
       synchronize: true,
       autoLoadEntities: true,
     }

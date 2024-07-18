@@ -15,6 +15,22 @@ import { ParseIdPipe } from 'src/pipes/parse-id/parse-id.pipe'
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
+  // api không yê cầu đăng nhập
+  @Get('find')
+  @Public()
+  async find(@Query() query: PaginationQueryDto) {
+    return {
+      ...(await this.courseService.find({ query })),
+    }
+  }
+
+  // api không yê cầu đăng nhập
+  @Get('find-one/:id')
+  @Public()
+  async findOne(@Param('id', ParseIdPipe) id: number) {
+    return { ...(await this.courseService.findOne({ id })) }
+  }
+
   @Post('create')
   @Roles(RoleEnum.TEACHER)
   @UseInterceptors(CourseImageInterceptor('image'))
@@ -34,21 +50,8 @@ export class CourseController {
     }
   }
 
-  @Get('find')
-  @Public()
-  async find(@Query() query: PaginationQueryDto) {
-    return {
-      ...(await this.courseService.find({ query })),
-    }
-  }
-
-  @Get('find-one/:id')
-  @Public()
-  async findOne(@Param('id', ParseIdPipe) id: number) {
-    return { ...(await this.courseService.findOne({ id })) }
-  }
-
   @Get('find-course-by-teacher')
+  @Roles(RoleEnum.TEACHER)
   async findCourseByTeacher(@Query() query: PaginationQueryDto, @ReqUser() user: User) {
     return await this.courseService.findCoursesByTeacher({ user, query })
   }
@@ -76,4 +79,8 @@ export class CourseController {
   async delete(@Param('id', ParseIdPipe) id: number, @ReqUser() user: User) {
     return await this.courseService.delete({ id, user })
   }
+
+  // @Post('enroll-course')
+  // @Roles(RoleEnum.STUDENT)
+  // async enrollmentCourse() {}
 }

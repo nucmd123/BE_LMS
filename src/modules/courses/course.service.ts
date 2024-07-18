@@ -8,6 +8,7 @@ import { User } from '../users/entities/user.entity'
 import PaginationQueryDto from './dto/pagination-query.dto'
 import { existsSync, unlinkSync } from 'fs'
 import { COURSE_IMG_DIR } from './course-image.interceptor'
+import { Enrollment } from './entities/enrollment.entity'
 
 type ICreateCourse = { createCourseDto: CreateCourseDto; user: User }
 type IFindCourse = { query: PaginationQueryDto }
@@ -18,10 +19,16 @@ type IDeleteCourse = { id: number; user: User }
 
 @Injectable()
 export class CourseService {
-  constructor(@InjectRepository(Course) private courseRepository: Repository<Course>) {}
+  constructor(
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
+    @InjectRepository(Course) private enrollmentRepository: Repository<Enrollment>,
+  ) {}
 
   async create({ createCourseDto, user }: ICreateCourse): Promise<Course> {
     const course = this.courseRepository.create({ ...createCourseDto, teacherId: user.id, teacher: user })
+    // const enrollment = this.enrollmentRepository.create({})
+    const teacher = await this.courseRepository.manager.findOne(User, { where: { id: user.id } })
+    console.log(teacher)
     return await this.courseRepository.save(course)
   }
 
