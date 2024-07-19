@@ -38,8 +38,14 @@ async function bootstrap() {
     }),
   )
 
+  // Middleware để thêm tiêu đề Cross-Origin-Resource-Policy
+  app.use((req, res, next) => {
+    res.header('Cross-Origin-Resource-Policy', 'same-site') // hoặc 'cross-origin' nếu cần
+    next()
+  })
+
   // cors config
-  app.enableCors({ credentials: true, origin: originCors })
+  app.enableCors({ credentials: true, origin: originCors, methods: 'GET,HEAD,PUT,PATCH,POST,DELETE' })
 
   // versioning config
   // /api/v[1,2,3,...]/...

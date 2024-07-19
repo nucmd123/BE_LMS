@@ -28,8 +28,8 @@ export class CourseService {
   async create({ createCourseDto, user }: ICreateCourse): Promise<Course> {
     const course = this.courseRepository.create({ ...createCourseDto, teacherId: user.id, teacher: user })
     // const enrollment = this.enrollmentRepository.create({})
-    const teacher = await this.courseRepository.manager.findOne(User, { where: { id: user.id } })
-    console.log(teacher)
+    // const teacher = await this.courseRepository.manager.findOne(User, { where: { id: user.id } })
+    // console.log(teacher)
     return await this.courseRepository.save(course)
   }
 
