@@ -84,4 +84,10 @@ export class UsersController {
       updateUserDto,
     })
   }
+
+  @Patch('profile/change-password')
+  async changPassword(@Body() updateUserDto: UpdateUserDto, @ReqUser() user: User) {
+    const { password, newPassword } = updateUserDto
+    await this.usersService.changePassword({ password, newPassword, user })
+  }
 }

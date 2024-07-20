@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './entities/user.entity'
 import { Repository } from 'typeorm'
-import { hash } from 'src/utils/hashAndCompare'
+import { compare, hash } from 'src/utils/hashAndCompare'
 import { RolesService } from '../roles/roles.service'
 import { RoleEnum } from 'src/modules/roles/enums/RoleEnum'
 import PaginationQueryDto from '../courses/dto/pagination-query.dto'
@@ -85,5 +85,13 @@ export class UsersService {
   async removeUser({ user }: IRemoveUser) {
     await this.usersRepository.softRemove(user)
     return
+  }
+
+  async changePassword({ password, newPassword, user }: { password: string; newPassword: string; user: User }) {
+    const comparepass = await compare(password, user.password)
+    if (!comparepass) throw new BadRequestException('Mật khẩu không chính xác')
+    if (password === newPassword) throw new BadRequestException('Mật khẩu cũ không được trùng mật khẩu mới')
+    user.password = await hash(newPassword)
+    await this.usersRepository.save(user)
   }
 }
