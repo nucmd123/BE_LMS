@@ -5,9 +5,11 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { Enrollment } from './enrollment.entity'
 
 @Entity()
 export class Course {
@@ -40,4 +42,7 @@ export class Course {
 
   @ManyToOne(() => User, (user) => user.courses)
   teacher: User
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[]
 }

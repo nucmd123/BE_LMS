@@ -10,6 +10,7 @@ import CourseImageInterceptor from './course-image.interceptor'
 import { Public } from 'src/decorators/public.decorator'
 import PaginationQueryDto from './dto/pagination-query.dto'
 import { ParseIdPipe } from 'src/pipes/parse-id/parse-id.pipe'
+import { ResponseMessage } from 'src/decorators/response-message.decorator'
 
 @Controller('courses')
 export class CourseController {
@@ -80,7 +81,10 @@ export class CourseController {
     return await this.courseService.delete({ id, user })
   }
 
-  // @Post('enroll-course')
-  // @Roles(RoleEnum.STUDENT)
-  // async enrollmentCourse() {}
+  @Post('enroll-course/:courseId')
+  @Roles(RoleEnum.STUDENT)
+  @ResponseMessage('Người dùng tham gia thành công')
+  async enrollCourse(@ReqUser() user: User, @Param('courseId', ParseIdPipe) courseid: string) {
+    return this.courseService.enrollCourse(user, +courseid)
+  }
 }

@@ -12,6 +12,7 @@ import {
 } from 'typeorm'
 import { SocialEnum } from '../enums/SocialEnum'
 import { Course } from 'src/modules/courses/entities/course.entity'
+import { Enrollment } from 'src/modules/courses/entities/enrollment.entity'
 
 @Entity()
 export class User {
@@ -58,6 +59,9 @@ export class User {
 
   @OneToMany(() => Course, (course) => course.teacher)
   courses: Course[]
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
+  enrollments: Enrollment[]
 
   toJSON() {
     return instanceToPlain(this)

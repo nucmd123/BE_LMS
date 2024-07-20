@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateCourseDto } from './dto/create-course.dto'
 import { UpdateCourseDto } from './dto/update-course.dto'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -22,15 +22,15 @@ type IDeleteCourse = { id: number; user: User }
 export class CourseService {
   constructor(
     @InjectRepository(Course) private courseRepository: Repository<Course>,
-    @InjectRepository(Course) private enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(Enrollment) private enrollmentRepository: Repository<Enrollment>,
   ) {}
 
   async create({ createCourseDto, user }: ICreateCourse): Promise<Course> {
     const course = this.courseRepository.create({ ...createCourseDto, teacherId: user.id, teacher: user })
-    // const enrollment = this.enrollmentRepository.create({})
-    // const teacher = await this.courseRepository.manager.findOne(User, { where: { id: user.id } })
-    // console.log(teacher)
-    return await this.courseRepository.save(course)
+    await this.courseRepository.save(course)
+    const enrollment = this.enrollmentRepository.create({ user, course })
+    await this.enrollmentRepository.save(enrollment)
+    return
   }
 
   async find({ query }: IFindCourse) {
@@ -105,5 +105,19 @@ export class CourseService {
 
     if (user.id === course.teacherId) return await this.courseRepository.softRemove(course)
     throw new ForbiddenException('Bạn không có quyền truy cập khoá học này')
+  }
+
+  async enrollCourse(user: User, courseId: number) {
+    const course = await this.courseRepository.findOne({ where: { id: courseId } })
+    if (!course) throw new NotFoundException('Khoá học không tồn tại')
+    const findEnroll = await this.courseRepository.manager.findOne(User, {
+      where: { enrollments: { user: { id: user.id } } },
+    })
+
+    if (findEnroll) throw new BadRequestException('Người dùng đã tham gia khoá học trước đó')
+
+    const enrollment = this.enrollmentRepository.create({ user, course })
+
+    await this.enrollmentRepository.save(enrollment)
   }
 }
