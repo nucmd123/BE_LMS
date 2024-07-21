@@ -11,6 +11,7 @@ import { Public } from 'src/decorators/public.decorator'
 import PaginationQueryDto from './dto/pagination-query.dto'
 import { ParseIdPipe } from 'src/pipes/parse-id/parse-id.pipe'
 import { ResponseMessage } from 'src/decorators/response-message.decorator'
+import { get } from 'http'
 
 @Controller('courses')
 export class CourseController {
@@ -87,5 +88,10 @@ export class CourseController {
   @ResponseMessage('Người dùng tham gia thành công')
   async enrollCourse(@ReqUser() user: User, @Param('courseId') courseId: number) {
     return this.courseService.enrollCourse(user, +courseId)
+  }
+
+  @Get('enrolled')
+  async findCousesEnrolled(@ReqUser() user: User) {
+    return await this.courseService.findCousesEnrolled(user)
   }
 }
