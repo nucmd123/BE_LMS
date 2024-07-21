@@ -93,7 +93,7 @@ export class CourseService {
     if (user.id !== course.teacherId) throw new ForbiddenException('Bạn không có quyền truy cập khoá học này')
 
     // Xoá image cũ trong server trước khi update thông tin mới cho course
-    if (course.image) {
+    if (updateCourseDto.image && course.image) {
       const oldCourseImage = `${COURSE_IMG_DIR}/${course.image}`
       if (existsSync(oldCourseImage)) {
         unlinkSync(oldCourseImage)
