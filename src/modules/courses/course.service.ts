@@ -132,23 +132,12 @@ export class CourseService {
   }
 
   async findCousesEnrolled(user: User) {
-    // const enrolled = await this.courseRepository.manager.findOne(User, {
-    //   where: {
-    //     id: user.id,
-    //   },
-    //   relations: { enrollments: true },
-    //   select: {
-    //     enrollments: {
-    //       course: [''],
-    //     },
-    //   },
-    // })
-
     const enrollments = await this.enrollmentRepository.find({
       where: {
         user: { id: user.id },
       },
-      relations: { course: true },
+      relations: { course: { teacher: true } },
+      order: { id: 'DESC' },
     })
 
     return { enrollments }
