@@ -28,7 +28,7 @@ export class CourseController {
   // api không yê cầu đăng nhập
   @Get('find-one/:id')
   @Public()
-  async findOne(@Param('id', ParseIdPipe) id: number) {
+  async findOne(@Param('id') id: number) {
     return { ...(await this.courseService.findOne({ id })) }
   }
 
@@ -62,7 +62,7 @@ export class CourseController {
   @UseInterceptors(CourseImageInterceptor('image'))
   @ResponseMessage('Chỉnh sửa thành công')
   async update(
-    @Param('id', ParseIdPipe) id: number,
+    @Param('id') id: number,
     @Body() updateCourseDto: UpdateCourseDto,
     @ReqUser() user: User,
     @UploadedFile() file: Express.Multer.File,
@@ -78,14 +78,14 @@ export class CourseController {
 
   @Delete('delete/:id')
   @Roles(RoleEnum.TEACHER)
-  async delete(@Param('id', ParseIdPipe) id: number, @ReqUser() user: User) {
+  async delete(@Param('id') id: number, @ReqUser() user: User) {
     return await this.courseService.delete({ id, user })
   }
 
   @Post('enroll-course/:courseId')
   @Roles(RoleEnum.STUDENT)
   @ResponseMessage('Người dùng tham gia thành công')
-  async enrollCourse(@ReqUser() user: User, @Param('courseId', ParseIdPipe) courseid: string) {
-    return this.courseService.enrollCourse(user, +courseid)
+  async enrollCourse(@ReqUser() user: User, @Param('courseId') courseId: number) {
+    return this.courseService.enrollCourse(user, +courseId)
   }
 }

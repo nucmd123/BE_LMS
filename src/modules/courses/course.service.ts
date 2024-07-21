@@ -116,8 +116,12 @@ export class CourseService {
   async enrollCourse(user: User, courseId: number) {
     const course = await this.courseRepository.findOne({ where: { id: courseId } })
     if (!course) throw new NotFoundException('Khoá học không tồn tại')
-    const findEnroll = await this.courseRepository.manager.findOne(User, {
-      where: { enrollments: { user: { id: user.id } } },
+
+    const findEnroll = await this.enrollmentRepository.findOne({
+      where: {
+        user: { id: user.id },
+        course: { id: course.id },
+      },
     })
 
     if (findEnroll) throw new BadRequestException('Người dùng đã tham gia khoá học trước đó')

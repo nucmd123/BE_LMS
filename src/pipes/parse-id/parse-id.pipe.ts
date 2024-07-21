@@ -3,9 +3,10 @@ import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from
 @Injectable()
 export class ParseIdPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
-    if (isNaN(parseInt(value))) {
+    console.log(value, typeof value)
+    if (Number.isInteger(value)) {
       throw new BadRequestException('Id must be an integer')
     }
-    return parseInt(value)
+    return value
   }
 }
