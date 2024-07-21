@@ -40,15 +40,15 @@ export class CourseController {
     @ReqUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return {
-      course: await this.courseService.create({
-        createCourseDto: {
-          ...createCourseDto,
-          image: file?.filename,
-        },
-        user,
-      }),
-    }
+    await this.courseService.create({
+      createCourseDto: {
+        ...createCourseDto,
+        image: file?.filename,
+      },
+      user,
+    })
+
+    return
   }
 
   @Get('find-course-by-teacher')
@@ -60,6 +60,7 @@ export class CourseController {
   @Patch('update/:id')
   @Roles(RoleEnum.TEACHER)
   @UseInterceptors(CourseImageInterceptor('image'))
+  @ResponseMessage('Chỉnh sửa thành công')
   async update(
     @Param('id', ParseIdPipe) id: number,
     @Body() updateCourseDto: UpdateCourseDto,

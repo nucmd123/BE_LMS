@@ -6,6 +6,6 @@ export class ParseIdPipe implements PipeTransform {
     if (isNaN(parseInt(value))) {
       throw new BadRequestException('Id must be an integer')
     }
-    return value
+    return parseInt(value)
   }
 }

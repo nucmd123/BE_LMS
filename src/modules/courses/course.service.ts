@@ -59,6 +59,9 @@ export class CourseService {
       skip: (page - 1) * limit,
       take: limit,
       where: { teacherId: user.id },
+      relations: ['teacher'],
+      select: { id: true, title: true, description: true, image: true, teacher: { firstName: true, lastName: true } },
+      order: { id: 'DESC' },
     })
     return {
       meta: paginationMeta({ limit, page, total }),
