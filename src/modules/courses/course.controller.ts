@@ -84,7 +84,7 @@ export class CourseController {
   }
 
   @Post('enroll-course/:courseId')
-  @Roles(RoleEnum.STUDENT)
+  @Roles(RoleEnum.STUDENT, RoleEnum.TEACHER)
   @ResponseMessage('Người dùng tham gia thành công')
   async enrollCourse(@ReqUser() user: User, @Param('courseId') courseId: number) {
     return this.courseService.enrollCourse(user, +courseId)
